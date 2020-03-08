@@ -1,6 +1,7 @@
 import cv2
 import datetime
 import requests
+import shutil
 import time as t
 
 from base_camera import BaseCamera
@@ -14,7 +15,7 @@ cfgs = dict()
 cfgs["mode"] = "haar"
 
 def send_image(IMG_PATH, res):
-    print(IMG_PATH)
+    # print(IMG_PATH)
     message = '物体を検知しました\n\n'
     for obj in res:
         class_name, val = obj
@@ -25,7 +26,7 @@ def send_image(IMG_PATH, res):
 
     files = {'imageFile': open(IMG_PATH, 'rb')}
     r = requests.post(url, headers=headers, params=payload, files=files)  # LINE NotifyへPOST
-    print(r.text)
+    # print(r.text)
 
 class Camera(BaseCamera):
     video_source = 0
@@ -46,15 +47,19 @@ class Camera(BaseCamera):
         while True:
             # read current frame
             _, frame = camera.read()
+            time = datetime.datetime.now()
+            strtime = time.strftime('%Y%m%d-%H-%M-%S')
+            IMG_NAME = strtime + ".jpg"
+            IMG_PATH = "./img/raw/" + IMG_NAME
             # frame = cv2.flip(frame, 0)
             # detections = detect_face(cfgs, frame)
             # print(frame)
             detections = detect_obj(frame)
+            cv2.imwrite("tmp.jpg", frame)
             frame, res = draw_bb(frame, detections)
             if len(res):
-                time = datetime.datetime.now()
-                strtime = time.strftime('%Y%m%d-%H-%M-%S')
-                IMG_PATH = "./img/" + strtime + ".jpg"
+                shutil.copy("tmp.jpg", IMG_PATH)
+                IMG_PATH = "./img/res/" + IMG_NAME
                 cv2.imwrite(IMG_PATH, frame)
                 send_image(IMG_PATH, res)
                 t.sleep(3)

@@ -35,7 +35,7 @@ def draw_bb(image, detections):
     image_height, image_width = image.shape[:2]
     for detection in detections:
         confidence = detection[2]
-        if confidence > .5:
+        if confidence > .75:
             idx = detection[1]
             class_name = classNames[idx]
             res.append((class_name, confidence))
