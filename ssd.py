@@ -31,14 +31,14 @@ def detect_obj(image):
 
 
 def draw_bb(image, detections):
-    cnt = 0
+    res = []
     image_height, image_width = image.shape[:2]
     for detection in detections:
         confidence = detection[2]
         if confidence > .5:
-            cnt += 1
             idx = detection[1]
             class_name = classNames[idx]
+            res.append((class_name, confidence))
 
             # print(" "+str(idx) + " " + str(confidence) + " " + class_name)
 
@@ -49,10 +49,10 @@ def draw_bb(image, detections):
 
             cv2.rectangle(image, (start_X, start_Y),
                           (end_X, end_Y), (23, 230, 210), thickness=2)
-            cv2.putText(image, class_name, (start_X, start_Y),
+            cv2.putText(image, class_name+" "+str(confidence), (start_X, start_Y),
                         cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255))
 
-    return image, cnt
+    return image, res
 
 
 def main(args):
