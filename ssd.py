@@ -1,8 +1,7 @@
-# coding: UTF-8
-
+import argparse
 import cv2
 import numpy as np
- 
+
 classNames = {0: 'background',
               1: 'person', 2: 'bicycle', 3: 'car', 4: 'motorcycle', 5: 'airplane', 6: 'bus',
               7: 'train', 8: 'truck', 9: 'boat', 10: 'traffic light', 11: 'fire hydrant',
@@ -20,38 +19,58 @@ classNames = {0: 'background',
               75: 'remote', 76: 'keyboard', 77: 'cell phone', 78: 'microwave', 79: 'oven',
               80: 'toaster', 81: 'sink', 82: 'refrigerator', 84: 'book', 85: 'clock',
               86: 'vase', 87: 'scissors', 88: 'teddy bear', 89: 'hair drier', 90: 'toothbrush'}
- 
- 
+
 model = cv2.dnn.readNetFromTensorflow('models/ssd/frozen_inference_graph.pb',
                                       'models/ssd/ssd_mobilenet_v2_coco_2018_03_29.pbtxt')
- 
-image = cv2.imread("img/programmer.jpg")
- 
-image_height, image_width = image.shape[:2]
- 
-model.setInput(cv2.dnn.blobFromImage(image, size=(300, 300), swapRB=True))
- 
-output = model.forward()
- 
-detections = output[0, 0, :, :]
- 
-for detection in detections:
-    confidence = detection[2]
-    if confidence > .5:
-        idx = detection[1]
-        class_name = classNames[idx]
- 
-        # print(" "+str(idx) + " " + str(confidence) + " " + class_name)
- 
-        axis = detection[3:7] * (image_width, image_height, image_width, image_height)
- 
-        (start_X, start_Y, end_X, end_Y) = axis.astype(np.int)[:4]
- 
-        cv2.rectangle(image, (start_X, start_Y), (end_X, end_Y), (23, 230, 210), thickness=2)
-        cv2.putText(image, class_name, (start_X, start_Y), cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255))
- 
-cv2.imshow('image', image)
-cv2.imwrite("img/laptop_box_text.jpg", image)
- 
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+
+
+def detect_obj(image):
+    model.setInput(cv2.dnn.blobFromImage(image, size=(300, 300), swapRB=True))
+    output = model.forward()
+    return output[0, 0, :, :]
+
+
+def draw_bb(image, detections):
+    image_height, image_width = image.shape[:2]
+
+    for detection in detections:
+        confidence = detection[2]
+        if confidence > .5:
+            idx = detection[1]
+            class_name = classNames[idx]
+
+            # print(" "+str(idx) + " " + str(confidence) + " " + class_name)
+
+            axis = detection[3:7] * (image_width,
+                                     image_height, image_width, image_height)
+
+            (start_X, start_Y, end_X, end_Y) = axis.astype(np.int)[:4]
+
+            cv2.rectangle(image, (start_X, start_Y),
+                          (end_X, end_Y), (23, 230, 210), thickness=2)
+            cv2.putText(image, class_name, (start_X, start_Y),
+                        cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255))
+
+    return image
+
+
+def main(args):
+    image = cv2.imread(args.image)
+
+    detections = detect_obj(image)
+    image = draw_bb(image, detections)
+
+    cv2.imshow('image', image)
+    cv2.imwrite("img/laptop_box_text.jpg", image)
+
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-i", "--image", default="haar",
+                    help="detection mode")
+    args = ap.parse_args()
+
+    main(args)
