@@ -31,6 +31,7 @@ def detect_obj(image):
 
 
 def draw_bb(image, detections):
+    flag = False
     res = []
     image_height, image_width = image.shape[:2]
     for detection in detections:
@@ -38,6 +39,8 @@ def draw_bb(image, detections):
         if confidence > .75:
             idx = detection[1]
             class_name = classNames[idx]
+            if class_name == "person":
+                flag = True
             res.append((class_name, confidence))
 
             # print(" "+str(idx) + " " + str(confidence) + " " + class_name)
@@ -52,7 +55,7 @@ def draw_bb(image, detections):
             cv2.putText(image, class_name+" "+str(confidence), (start_X, start_Y),
                         cv2.FONT_HERSHEY_PLAIN, 2, (0, 0, 255))
 
-    return image, res
+    return image, res, flag
 
 
 def main(args):

@@ -56,8 +56,8 @@ class Camera(BaseCamera):
             # print(frame)
             detections = detect_obj(frame)
             cv2.imwrite("tmp.jpg", frame)
-            frame, res = draw_bb(frame, detections)
-            if len(res):
+            frame, res, flag = draw_bb(frame, detections)
+            if flag:
                 shutil.copy("tmp.jpg", IMG_PATH)
                 IMG_PATH = "./img/res/" + IMG_NAME
                 cv2.imwrite(IMG_PATH, frame)
