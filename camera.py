@@ -53,12 +53,9 @@ class Camera(BaseCamera):
             IMG_PATH = "./img/raw/" + IMG_NAME
             # frame = cv2.flip(frame, 0)
             detections = detect_face(cfgs, frame)
-            # print(frame)
             # detections = detect_obj(frame)
             cv2.imwrite("tmp.jpg", frame)
-            # frame, res, flag = draw_bb(frame, detections)
-            frame, flag = draw_bb(frame, detections)
-            res = []
+            frame, res, flag = draw_bb(frame, detections)
             if flag:
                 shutil.copy("tmp.jpg", IMG_PATH)
                 IMG_PATH = "./img/res/" + IMG_NAME

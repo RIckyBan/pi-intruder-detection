@@ -68,7 +68,6 @@ def main(args):
     image = draw_bb(image, detections)
 
     cv2.imshow('image', image)
-    cv2.imwrite("img/laptop_box_text.jpg", image)
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
@@ -76,8 +75,7 @@ def main(args):
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("-i", "--image", default="haar",
-                    help="detection mode")
+    ap.add_argument("-i", "--image", help="input image")
     args = ap.parse_args()
 
     main(args)
