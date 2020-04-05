@@ -12,7 +12,7 @@ with open("token.txt") as f:
     token = f.read().strip()
 
 cfgs = dict()
-cfgs["mode"] = "haar"
+cfgs["mode"] = "MTCNN"
 
 def send_image(IMG_PATH, res):
     # print(IMG_PATH)
@@ -55,7 +55,7 @@ class Camera(BaseCamera):
             detections = detect_face(cfgs, frame)
             # detections = detect_obj(frame)
             cv2.imwrite("tmp.jpg", frame)
-            frame, res, flag = draw_bb(frame, detections)
+            frame, res, flag = draw_bb(cfgs, frame, detections)
             if flag:
                 shutil.copy("tmp.jpg", IMG_PATH)
                 IMG_PATH = "./img/res/" + IMG_NAME

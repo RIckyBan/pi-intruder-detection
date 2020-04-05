@@ -73,7 +73,9 @@ def main(args):
             cv2_im, _, _ = draw_bb(cfgs, cv2_im, faces)
             # cv2.imwrite(os.path.join('static/images', "{0:%Y-%m-%d-%H-%M-%S}.png".format(t)), frame)
 
-        cv2.imshow('frame', cv2_im)
+        # cv2.imshow('frame', cv2_im)
+        cv2.imwrite('tmp.png', cv2_im)
+        print("image saved.")
         if (t - now).seconds/60 > INTERVAL:
             now = t
             # cv2.imwrite(os.path.join('static/images', "{0:%Y-%m-%d-%H-%M-%S}.png".format(now)), cv2_im)
