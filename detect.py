@@ -1,6 +1,7 @@
 import argparse
 import cv2
 import datetime
+import tensorflow as tf
 from mtcnn.mtcnn import MTCNN
 import numpy as np
 import os
@@ -8,13 +9,16 @@ import os
 INTERVAL = 15
 # create the detector, using default weights
 detector = MTCNN()
+graph = tf.compat.v1.get_default_graph()
 
 def detect_face(cfgs, img):
     if cfgs["mode"] == "MTCNN":
         # load image from file
         pixels = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         # detect faces in the image
-        faces = detector.detect_faces(pixels)
+        global graph
+        with graph.as_default():
+            faces = detector.detect_faces(pixels)
     else:
         # カスケードファイルのパス
         if cfgs["mode"] == "haar":
@@ -75,7 +79,7 @@ def main(args):
 
         # cv2.imshow('frame', cv2_im)
         cv2.imwrite('tmp.png', cv2_im)
-        print("image saved.")
+        # print("image saved.")
         if (t - now).seconds/60 > INTERVAL:
             now = t
             # cv2.imwrite(os.path.join('static/images', "{0:%Y-%m-%d-%H-%M-%S}.png".format(now)), cv2_im)
