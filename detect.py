@@ -18,11 +18,11 @@ def detect_face(cfgs, img):
     else:
         # カスケードファイルのパス
         if cfgs["mode"] == "haar":
-            CASCADE_PATH = './haarcascade_frontalface.xml'
+            CASCADE_PATH = './cascade/haarcascade_frontalface.xml'
         elif cfgs["mode"] == "lbp":
-            CASCADE_PATH = './lbpcascade_frontalface_improved.xml'
+            CASCADE_PATH = './cascade/lbpcascade_frontalface_improved.xml'
         else:
-            raise Exception("Please specify cascase mode")
+            raise Exception("Please specify cascade mode")
 
         # 画像をグレースケール変換
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -33,15 +33,22 @@ def detect_face(cfgs, img):
 
     return faces
 
-def draw_bb(frame, faces):
+def draw_bb(cfgs, frame, faces):
+    res = []
     if len(faces):
         flag = True
+        if cfgs["mode"] == "MTCNN":
+            for face in faces:
+                x, y, w, h = face['box']
+                print(face['confidence'])
+                if face['confidence'] > 0.98:
+                    frame = cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
+        else:
+            for (x, y, w, h) in faces:
+                frame = cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
     else:
         flag = False
 
-    for (x, y, w, h) in faces:
-        frame = cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
-    res = []
     return frame, res, flag
 
 def main(args):
@@ -63,7 +70,7 @@ def main(args):
         # 検出結果の可視化
         cv2_im = frame.copy()
         if len(faces):
-            cv2_im = draw_bb(frame, faces)
+            cv2_im, _, _ = draw_bb(cfgs, cv2_im, faces)
             # cv2.imwrite(os.path.join('static/images', "{0:%Y-%m-%d-%H-%M-%S}.png".format(t)), frame)
 
         cv2.imshow('frame', cv2_im)
