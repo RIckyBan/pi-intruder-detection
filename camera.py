@@ -5,8 +5,8 @@ import shutil
 import time as t
 
 from base_camera import BaseCamera
-# from detect import detect_face, draw_bb
-from ssd import detect_obj, draw_bb
+from detect import detect_face, draw_bb
+# from ssd import detect_obj, draw_bb
 
 with open("token.txt") as f:
     token = f.read().strip()
@@ -52,11 +52,13 @@ class Camera(BaseCamera):
             IMG_NAME = strtime + ".jpg"
             IMG_PATH = "./img/raw/" + IMG_NAME
             # frame = cv2.flip(frame, 0)
-            # detections = detect_face(cfgs, frame)
+            detections = detect_face(cfgs, frame)
             # print(frame)
-            detections = detect_obj(frame)
+            # detections = detect_obj(frame)
             cv2.imwrite("tmp.jpg", frame)
-            frame, res, flag = draw_bb(frame, detections)
+            # frame, res, flag = draw_bb(frame, detections)
+            frame, flag = draw_bb(frame, detections)
+            res = []
             if flag:
                 shutil.copy("tmp.jpg", IMG_PATH)
                 IMG_PATH = "./img/res/" + IMG_NAME

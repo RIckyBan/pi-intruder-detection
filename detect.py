@@ -8,10 +8,12 @@ INTERVAL = 15
 
 def detect_face(cfgs, img):
     # カスケードファイルのパス
-    if cfgs["mode"] == "haar":
-        CASCADE_PATH = './haarcascade_frontalface.xml'
-    else:
-        CASCADE_PATH = './lbpcascade_frontalface_improved.xml'
+    # if cfgs["mode"] == "haar":
+    #    CASCADE_PATH = './haarcascade_frontalface.xml'
+    # else:
+    #    CASCADE_PATH = './lbpcascade_frontalface_improved.xml'
+    
+    CASCADE_PATH = './haarcascade_frontalface.xml'
 
     # 画像をグレースケール変換
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -25,10 +27,15 @@ def detect_face(cfgs, img):
     return faces
 
 def draw_bb(frame, faces):
+    if len(faces):
+        flag = True
+    else:
+        flag = False
+
     for (x, y, w, h) in faces:
         frame = cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
 
-    return frame
+    return frame, flag
 
 def main(args):
     now = datetime.datetime(year=2019, month=12, day=31) # 初期化
