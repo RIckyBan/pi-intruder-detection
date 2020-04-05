@@ -7,18 +7,12 @@ import numpy as np
 import os
 
 INTERVAL = 15
-# create the detector, using default weights
-detector = MTCNN()
-graph = tf.compat.v1.get_default_graph()
 
-def detect_face(cfgs, img):
+def detect_face(detector, cfgs, img):
     if cfgs["mode"] == "MTCNN":
-        # load image from file
         pixels = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         # detect faces in the image
-        global graph
-        with graph.as_default():
-            faces = detector.detect_faces(pixels)
+        faces = detector.detect_faces(pixels)
     else:
         # カスケードファイルのパス
         if cfgs["mode"] == "haar":
@@ -44,8 +38,7 @@ def draw_bb(cfgs, frame, faces):
         if cfgs["mode"] == "MTCNN":
             for face in faces:
                 x, y, w, h = face['box']
-                print(face['confidence'])
-                if face['confidence'] > 0.98:
+                if face['confidence'] > 0.80:
                     frame = cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
         else:
             for (x, y, w, h) in faces:
@@ -57,9 +50,11 @@ def draw_bb(cfgs, frame, faces):
 
 def main(args):
     now = datetime.datetime(year=2019, month=12, day=31) # 初期化
-
+    
     cfgs = dict()
     cfgs["mode"] = args.mode
+    detector = MTCNN()
+    graph = tf.compat.v1.get_default_graph()
 
     cap = cv2.VideoCapture(0)
 
@@ -69,7 +64,8 @@ def main(args):
         if not ret:
             break
         # frame = cv2.flip(frame, 0)
-        faces = detect_face(cfgs, frame)
+        with graph.as_default():
+            faces = detect_face(detector, cfgs, frame)
 
         # 検出結果の可視化
         cv2_im = frame.copy()
